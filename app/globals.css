@@ -19,3 +19,15 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer base {
+  body {
+    @apply bg-white;
+  }
+}
+
+@layer components {
+  textarea:focus, select:focus {
+    @apply outline-none ring-2 ring-blue-500;
+  }
+}
