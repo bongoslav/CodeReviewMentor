@@ -2,15 +2,10 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import Prism from 'prismjs';
+import { Submission } from '@prisma/client';
 
 interface SubmissionDetailProps {
-  submission: {
-    id: number;
-    code: string;
-    language: string;
-    feedback: string;
-    timestamp: string;
-  };
+  submission: Submission;
   onClose: () => void;
 }
 
@@ -56,6 +51,8 @@ const SubmissionDetail = ({ submission, onClose }: SubmissionDetailProps) => {
     }
   }, [isMounted, onClose]);
 
+  if (!isMounted) return null;
+
   const handleCopyClick = () => {
     navigator.clipboard.writeText(submission.code).then(
       () => setCopySuccess(true),
@@ -70,11 +67,11 @@ const SubmissionDetail = ({ submission, onClose }: SubmissionDetailProps) => {
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
-      ref={backdropRef} // Attach backdropRef here
+      ref={backdropRef}
     >
       <div
         className="bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-700"
-        ref={modalRef} // Attach modalRef here
+        ref={modalRef}
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-200">Submission Detail</h2>
@@ -88,7 +85,7 @@ const SubmissionDetail = ({ submission, onClose }: SubmissionDetailProps) => {
 
         <div className="mb-4">
           <p className="text-sm text-gray-400">
-            {new Date(submission.timestamp).toLocaleString()}
+            {submission.createdAt.toLocaleString()}
           </p>
           <p className="text-sm font-semibold text-gray-200">{submission.language}</p>
         </div>
