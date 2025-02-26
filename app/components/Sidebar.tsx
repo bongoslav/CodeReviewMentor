@@ -1,68 +1,58 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "../utils/trpc";
-import SubmissionDetail from "./SubmissionDetail";
-import { Submission } from "@prisma/client";
+import { Button } from "./ui/button";
 
-const Sidebar = ({ onNewSubmission }: { onNewSubmission: () => void }) => {
-  const [selectedSubmission, setSelectedSubmission] =
-    useState<Submission | null>(null);
-  const { data: submissions } = trpc.submissions.getAll.useQuery();
+type Submission = { id: string; code: string; language: string; feedback?: string };
 
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
+const Sidebar = ({ 
+  onNewSubmission,
+  setRefetchSubmissions,
+}: {
+  onNewSubmission: (submissionId: string | null) => void;
+  setRefetchSubmissions: (refetch: () => void) => void;
+}) => {
+  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const { data: submissions, refetch } = trpc.submissions.getAll.useQuery(undefined, {
+    refetchOnWindowFocus: false, // Prevent refetch on tab switch
+  });
+
+  // Provide the refetch function to the parent
+  useEffect(() => {
+    setRefetchSubmissions(() => refetch);
+  }, [refetch, setRefetchSubmissions]);
+
+  const handleNewClick = () => {
+    setSelectedSubmission(null);
+    onNewSubmission(null); // Signal a new submission
+  };
+
+  const handleSelectSubmission = (submission: Submission) => {
+    setSelectedSubmission(submission);
+    onNewSubmission(submission.id);
   };
 
   return (
-    <>
-      <div className="w-64 h-screen bg-gray-800 p-4 border-r border-gray-700 overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4 text-gray-200">
-          Submission History
-        </h2>
-        <button
-          onClick={() => {
-            setSelectedSubmission(null);
-            onNewSubmission(); // reset CodeSubmission form
-          }}
-          className="mb-4 bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
-        >
-          New Submission
-        </button>
-        <div className="space-y-2">
-          {submissions?.map((submission) => (
-            <div
-              key={submission.id}
-              className="p-3 bg-gray-700 rounded shadow hover:bg-gray-600 cursor-pointer transition-colors"
-              onClick={() =>
-                setSelectedSubmission({
-                  ...submission,
-                  createdAt: new Date(submission.createdAt),
-                })
-              }
-            >
-              <p className="text-sm font-medium text-gray-200">
-                {submission.language}
-              </p>
-              <pre className="text-xs text-gray-300 mt-1 overflow-hidden">
-                {truncateText(submission.code, 50)}
-              </pre>
-              <p className="text-xs text-gray-400 mt-1">
-                {new Date(submission.createdAt).toLocaleString()}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {selectedSubmission && (
-        <SubmissionDetail
-          submission={selectedSubmission}
-          onClose={() => setSelectedSubmission(null)}
-        />
-      )}
-    </>
+    <div className="w-64 bg-gray-100 p-4">
+      <Button
+        onClick={handleNewClick}
+        className="mb-4 bg-blue-500 text-white p-2 rounded"
+      >
+        New Submission
+      </Button>
+      <ul>
+        {submissions?.map((submission) => (
+          <li
+            key={submission.id}
+            onClick={() => handleSelectSubmission(submission)}
+            className={`cursor-pointer p-2 ${
+              selectedSubmission?.id === submission.id ? "bg-blue-200" : ""
+            }`}
+          >
+            Submission #{submission.id}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

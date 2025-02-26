@@ -15,6 +15,7 @@ export const aiRouter = router({
   generateFeedback: publicProcedure
     .input(z.object({ submissionId: z.string() }))
     .mutation(async function* ({ input }) {
+      console.log('Starting feedback generation for submission:', input.submissionId);
       const submission = await prisma.submission.findUnique({
         where: { id: input.submissionId },
       });
@@ -23,6 +24,8 @@ export const aiRouter = router({
         throw new Error('Submission not found');
       }
 
+      console.log('Submission found:', submission);
+
       const { textStream } = streamText({
         model: openai('gpt-4o-mini'),
         prompt: SYSTEM_PROMPT,
@@ -30,6 +33,7 @@ export const aiRouter = router({
         temperature: 1,
       });
 
+      console.log('Starting to stream AI feedback...');
       let feedback = '';
       for await (const chunk of textStream) {
         feedback += chunk;
@@ -41,5 +45,6 @@ export const aiRouter = router({
         where: { id: input.submissionId },
         data: { feedback },
       });
+      console.log('Feedback saved to submission:', input.submissionId);
     }),
 });

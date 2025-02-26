@@ -1,22 +1,29 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import CodeSubmission from './components/CodeSubmission';
-import Sidebar from './components/Sidebar';
+import { useState } from "react";
+import Sidebar from "./components/Sidebar";
+import CodeSubmission from "./components/CodeSubmission";
 
 export default function Home() {
-  const [resetTrigger, setResetTrigger] = useState(0);
+  const [currentSubmissionId, setCurrentSubmissionId] = useState<string | null>(null);
+  const [refetchSubmissions, setRefetchSubmissions] = useState<() => void>(() => () => {});
 
-  const handleNewSubmission = () => {
-    setResetTrigger((prev) => prev + 1);
+  const handleNewSubmission = (submissionId: string | null) => {
+    setCurrentSubmissionId(submissionId);
   };
 
   return (
     <div className="flex">
-      <Sidebar onNewSubmission={handleNewSubmission} />
-      <main className="flex-1">
-        <CodeSubmission resetForm={resetTrigger} />
-      </main>
+      <Sidebar
+        onNewSubmission={handleNewSubmission}
+        setRefetchSubmissions={setRefetchSubmissions} // Pass setter to Sidebar
+      />
+      <div className="flex-1">
+        <CodeSubmission
+          submissionId={currentSubmissionId}
+          refetchSubmissions={refetchSubmissions} // Pass refetch function to CodeSubmission
+        />
+      </div>
     </div>
   );
 }
