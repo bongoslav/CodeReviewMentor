@@ -55,7 +55,12 @@ export default {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+			gray: {
+				700: "#374151", // Darker gray for content
+				800: "#2d3748", // Dark gray for backgrounds
+				900: "#1a202c", // Base dark background
+			},
   	}
   },
   plugins: [require("tailwindcss-animate")],
