@@ -23,6 +23,7 @@ const CodeSubmission = ({
   );
   const [feedback, setFeedback] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // fetch current submission if submissionId exists
   const { data: currentSubmission, isLoading: isSubmissionLoading } =
@@ -31,26 +32,45 @@ const CodeSubmission = ({
       { enabled: !!submissionId }
     );
 
-  // mutation to create a new submission
+  // mutation to create a submission
   const createMutation = trpc.submissions.create.useMutation({
-    onSuccess: () => refetchSubmissions(),
+    onSuccess: () => {
+      refetchSubmissions();
+      setError(null);
+    },
+    onError: (error) => {
+      console.error("Error creating submission:", error);
+      if (error.data?.zodError) {
+        const zodError = JSON.stringify(error.data.zodError, null, 2);
+        setError(zodError);
+      } else {
+        setError("Failed to save submission. Please try again.");
+      }
+    },
   });
 
-  // mutation to generate feedback with streaming support
+  // mutation to generate feedback with streaming
   const feedbackMutation = trpc.ai.generateFeedback.useMutation({
     onSuccess: async (stream) => {
       setIsLoading(true);
       let accumulatedFeedback = "";
-      // iterate over the streamed chunks
+
       for await (const chunk of stream) {
         accumulatedFeedback += chunk;
-        setFeedback(accumulatedFeedback); // update UI with each chunk
+        setFeedback(accumulatedFeedback);
       }
+
       setIsLoading(false);
-      refetchSubmissions();
+
+      createMutation.mutate({
+        code,
+        language,
+        feedback: accumulatedFeedback,
+      });
     },
     onError: (error) => {
       console.error("Error generating feedback:", error);
+      setError("Failed to generate feedback. Please try again.");
       setIsLoading(false);
     },
   });
@@ -68,16 +88,22 @@ const CodeSubmission = ({
     }
   }, [currentSubmission]);
 
+  const isValidCode = code.length >= 30 && code.length <= 500;
+  const isValidLanguage = Object.values(SupportedLanguages).includes(language);
+
   const handleSubmit = () => {
+    if (!isValidCode) {
+      setError("Code must be between 30 and 500 characters.");
+      return;
+    }
+    if (!isValidLanguage) {
+      setError("Please select a valid language.");
+      return;
+    }
+    setError(null);
+    setFeedback("");
     setIsLoading(true);
-    // create new submission and then generate feedback
-    createMutation.mutate(
-      { code, language },
-      {
-        onSuccess: (newSubmission) =>
-          feedbackMutation.mutate({ submissionId: newSubmission.id }),
-      }
-    );
+    feedbackMutation.mutate({ code, language });
   };
 
   return (
@@ -130,7 +156,12 @@ const CodeSubmission = ({
               {isLoading ? "Generating..." : "Generate Feedback"}
             </Button>
           </div>
-          {feedback && <pre className="mt-4 text-gray-300 text-sm whitespace-pre-wrap break-words">{feedback}</pre>}
+          {error && <p className="text-red-500 mt-2">{error}</p>}
+          {feedback && (
+            <pre className="mt-4 text-gray-300 text-sm whitespace-pre-wrap break-words max-w-prose">
+              {feedback}
+            </pre>
+          )}
           {isLoading && <Skeleton className="h-4 w-full mt-4 bg-gray-700" />}
         </>
       )}

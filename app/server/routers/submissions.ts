@@ -1,16 +1,20 @@
 import { router, publicProcedure } from "../trpc";
 import { z } from "zod";
 import prisma from "../../utils/prisma";
+import { SupportedLanguages } from "@/app/utils/enums";
 
 export const submissionsRouter = router({
   create: publicProcedure
     .input(
       z.object({
-        code: z.string(),
-        // TODO: client side validation only for now
-        // .min(30, "Code must be at least 30 characters long")
-        // .max(500, "Code must not exceed 500 characters"),
-        language: z.string(),
+        code: z
+          .string()
+          .min(30, "Code must be at least 30 characters long")
+          .max(500, "Code must not exceed 500 characters"),
+        language: z.nativeEnum(SupportedLanguages, {
+          errorMap: () => ({ message: "Invalid language" }),
+        }),
+        feedback: z.string(),
       })
     )
     .mutation(async ({ input }) => {
@@ -18,7 +22,7 @@ export const submissionsRouter = router({
         data: {
           code: input.code,
           language: input.language,
-          feedback: "", // initially empty, updated when generated
+          feedback: input.feedback,
         },
       });
 
