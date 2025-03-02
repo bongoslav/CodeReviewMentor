@@ -66,7 +66,7 @@ const Sidebar = ({
               }`}
             >
               <p className="font-medium text-gray-200">{submission.language}</p>
-              <pre className="text-sm text-gray-400">{truncateText(submission.code, 50)}</pre>
+              <pre className="text-sm text-gray-400">{truncateText(submission.code, 20)}</pre>
               <p className="text-xs text-gray-500">
                 {new Date(submission.createdAt).toLocaleString()}
               </p>
