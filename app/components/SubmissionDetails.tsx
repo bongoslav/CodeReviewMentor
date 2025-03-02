@@ -33,7 +33,7 @@ const SubmissionDetails = ({
           <Skeleton className="h-28 w-full bg-gray-700" />{" "}
         </>
       ) : (
-        <div className="mb-2">
+        <div className="mb-4">
           <CodeMirror
             value={currentSubmission.code}
             extensions={getLanguageExtension()}
@@ -48,7 +48,7 @@ const SubmissionDetails = ({
             className="w-full h-96 overflow-y-auto overflow-x-auto"
             readOnly={true}
           />
-          {feedback && <p className="mt-2 text-gray-300">{feedback}</p>}
+          {feedback && <p className="mt-4 text-gray-300">{feedback}</p>}
         </div>
       )}
     </>

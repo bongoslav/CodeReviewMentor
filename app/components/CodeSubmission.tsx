@@ -18,7 +18,9 @@ const CodeSubmission = ({
   refetchSubmissions: () => void;
 }) => {
   const [code, setCode] = useState("");
-  const [language, setLanguage] = useState<SupportedLanguages>(SupportedLanguages.Javascript);
+  const [language, setLanguage] = useState<SupportedLanguages>(
+    SupportedLanguages.Javascript
+  );
   const [feedback, setFeedback] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -88,10 +90,12 @@ const CodeSubmission = ({
         />
       ) : (
         <>
-          <div className="mb-2">
+          <div className="mb-4">
             <CodeMirror
               value={code}
-              extensions={language === SupportedLanguages.Javascript ? [javascript()] : []}
+              extensions={
+                language === SupportedLanguages.Javascript ? [javascript()] : []
+              }
               onChange={(value) => setCode(value)}
               theme={atomone}
               height="384px" // h-96
@@ -103,27 +107,31 @@ const CodeSubmission = ({
               className="w-full h-96 overflow-y-auto overflow-x-auto"
             />
           </div>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as SupportedLanguages)}
-            className="mt-2 p-2 bg-gray-800 text-white rounded"
-          >
-            {Object.values(SupportedLanguages).map((lang) => (
-              <option key={lang} value={lang}>
-                {lang.charAt(0).toUpperCase() + lang.slice(1)}
-              </option>
-            ))}
-          </select>
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading || !code.trim()}
-            variant="default"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {isLoading ? "Generating..." : "Generate Feedback"}
-          </Button>
-          {feedback && <p className="mt-2 text-gray-300">{feedback}</p>}
-          {isLoading && <Skeleton className="h-4 w-full mt-2 bg-gray-700" />}
+          <div className="flex flex-row space-x-4 items-center">
+            <select
+              value={language}
+              onChange={(e) =>
+                setLanguage(e.target.value as SupportedLanguages)
+              }
+              className="p-2 bg-gray-800 text-white rounded"
+            >
+              {Object.values(SupportedLanguages).map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                </option>
+              ))}
+            </select>
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading || !code.trim()}
+              variant="default"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isLoading ? "Generating..." : "Generate Feedback"}
+            </Button>
+          </div>
+          {feedback && <p className="mt-4 text-gray-300">{feedback}</p>}
+          {isLoading && <Skeleton className="h-4 w-full mt-4 bg-gray-700" />}
         </>
       )}
     </div>
