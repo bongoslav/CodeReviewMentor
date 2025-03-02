@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { atomone } from "@uiw/codemirror-theme-atomone";
 import { trpc } from "../utils/trpc";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
-import { Textarea } from "./ui/textarea";
 
 const CodeSubmission = ({
   submissionId,
@@ -85,7 +87,8 @@ const CodeSubmission = ({
       <div className="p-4">
         <Skeleton className="h-4 w-1/4 mb-2 bg-gray-700" /> {/* Language */}
         <Skeleton className="h-32 w-full mb-2 bg-gray-700" /> {/* Code */}
-        <Skeleton className="h-4 w-1/4 mb-2 bg-gray-700" /> {/* Feedback label */}
+        <Skeleton className="h-4 w-1/4 mb-2 bg-gray-700" />{" "}
+        {/* Feedback label */}
         <Skeleton className="h-4 w-full bg-gray-700" /> {/* Feedback */}
       </div>
     );
@@ -116,23 +119,27 @@ const CodeSubmission = ({
         </>
       ) : (
         <>
-          <Textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="Enter your code here..."
-            className="h-32 mb-2 bg-gray-700 border-gray-600 text-gray-200 placeholder-gray-500"
-          />
+          <div className="mb-2">
+            <CodeMirror
+              value={code}
+              extensions={language === "javascript" ? [javascript()] : []}
+              onChange={(value) => setCode(value)}
+              theme={atomone}
+              basicSetup={{
+                lineNumbers: true,
+                highlightActiveLine: true,
+                autocompletion: true,
+              }}
+              className="w-full h-96 overflow-y-auto overflow-x-auto"
+            />
+          </div>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="mb-2 p-2 border-gray-600 rounded w-full bg-gray-700 text-gray-200"
+            className="mt-2 p-2 bg-gray-800 text-white rounded"
           >
-            <option value="javascript" className="bg-gray-700 text-gray-200">
-              JavaScript
-            </option>
-            <option value="python" className="bg-gray-700 text-gray-200">
-              Python
-            </option>
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
           </select>
           <Button
             onClick={handleSubmit}
@@ -142,9 +149,7 @@ const CodeSubmission = ({
           >
             {isLoading ? "Submitting..." : "Submit & Generate Feedback"}
           </Button>
-          {feedback && (
-            <p className="mt-2 text-gray-300">{feedback}</p>
-          )}
+          {feedback && <p className="mt-2 text-gray-300">{feedback}</p>}
           {isLoading && <Skeleton className="h-4 w-full mt-2 bg-gray-700" />}
         </>
       )}

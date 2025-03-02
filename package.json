@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.1.13",
+    "@codemirror/lang-javascript": "^6.2.3",
     "@prisma/client": "^6.4.1",
     "@radix-ui/react-slot": "^1.1.2",
     "@shadcn/ui": "^0.0.4",
@@ -19,6 +20,8 @@
     "@trpc/react-query": "^11.0.0-rc.802",
     "@trpc/server": "^11.0.0-rc.802",
     "@types/prismjs": "^1.26.5",
+    "@uiw/codemirror-theme-atomone": "^4.23.9",
+    "@uiw/react-codemirror": "^4.23.9",
     "ai": "^4.1.45",
     "better-sqlite3": "^11.8.1",
     "class-variance-authority": "^0.7.1",
