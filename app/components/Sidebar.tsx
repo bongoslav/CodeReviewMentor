@@ -8,6 +8,8 @@ import { trpc } from "../utils/trpc";
 
 type Submission = { id: string; code: string; language: string; feedback?: string; createdAt: string };
 
+const ITEMS_PER_PAGE = 5;
+
 const Sidebar = ({
   onNewSubmission,
   setRefetchSubmissions,
@@ -18,6 +20,7 @@ const Sidebar = ({
   className?: string;
 }) => {
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { data: submissions, isLoading, refetch } = trpc.submissions.getAll.useQuery(undefined, {
     refetchOnWindowFocus: false,
   });
@@ -39,6 +42,21 @@ const Sidebar = ({
   const truncateText = (text: string, maxLength: number) =>
     text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 
+  // pagination logic
+  const totalPages = submissions ? Math.ceil(submissions.length / ITEMS_PER_PAGE) : 1;
+  const paginatedSubmissions = submissions
+    ? submissions.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+      )
+    : [];
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
   return (
     <div className={`w-64 bg-gray-800 p-4 ${className}`}>
       <Button
@@ -48,7 +66,6 @@ const Sidebar = ({
       >
         New Submission
       </Button>
-      {/* TODO: add pagination */}
       {isLoading ? (
         <div className="space-y-2">
           {[1, 2, 3].map((i) => (
@@ -56,23 +73,46 @@ const Sidebar = ({
           ))}
         </div>
       ) : (
-        <div className="space-y-2">
-          {submissions?.map((submission) => (
-            <Card
-              key={submission.id}
-              onClick={() => handleSelectSubmission(submission)}
-              className={`cursor-pointer p-3 bg-gray-700 border-gray-600 ${
-                selectedSubmission?.id === submission.id ? "bg-gray-600 border-blue-500" : ""
-              }`}
-            >
-              <p className="font-medium text-gray-200">{submission.language}</p>
-              <pre className="text-sm text-gray-400">{truncateText(submission.code, 20)}</pre>
-              <p className="text-xs text-gray-500">
-                {new Date(submission.createdAt).toLocaleString()}
-              </p>
-            </Card>
-          ))}
-        </div>
+        <>
+          <div className="space-y-2">
+            {paginatedSubmissions?.map((submission) => (
+              <Card
+                key={submission.id}
+                onClick={() => handleSelectSubmission(submission)}
+                className={`cursor-pointer p-3 bg-gray-700 border-gray-600 ${
+                  selectedSubmission?.id === submission.id ? "bg-gray-600 border-blue-500" : ""
+                }`}
+              >
+                <p className="text-base text-gray-200">{submission.language}</p>
+                <pre className="text-sm text-gray-400">{truncateText(submission.code, 20)}</pre>
+                <p className="text-xs text-gray-500">
+                  {new Date(submission.createdAt).toLocaleString()}
+                </p>
+              </Card>
+            ))}
+          </div>
+          {totalPages > 1 && (
+            <div className="flex justify-between mt-4">
+              <Button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="hover:bg-gray-700"
+              >
+                Previous
+              </Button>
+              <span className="text-gray-300">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="hover:bg-gray-700"
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
