@@ -13,9 +13,11 @@ import { SupportedLanguages } from "../utils/enums";
 const CodeSubmission = ({
   submissionId,
   refetchSubmissions,
+  resetCode,
 }: {
   submissionId: string | null;
   refetchSubmissions: () => void;
+  resetCode?: boolean;
 }) => {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState<SupportedLanguages>(
@@ -75,6 +77,10 @@ const CodeSubmission = ({
     },
   });
 
+  useEffect(() => {
+    if (resetCode) setCode("");
+  }, [resetCode]);
+
   // sync component state with fetched submission data
   useEffect(() => {
     if (currentSubmission) {
@@ -108,7 +114,7 @@ const CodeSubmission = ({
 
   return (
     <div className="p-4">
-      {submissionId ? (
+      {currentSubmission ? (
         <SubmissionDetails
           currentSubmission={currentSubmission}
           feedback={feedback}

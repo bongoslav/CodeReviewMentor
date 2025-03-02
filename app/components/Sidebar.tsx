@@ -5,8 +5,7 @@ import { Button } from "@/app/components/ui/button";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { Card } from "@/app/components/ui/card";
 import { trpc } from "../utils/trpc";
-
-type Submission = { id: string; code: string; language: string; feedback?: string; createdAt: string };
+import { ApiSubmission } from "../utils/types";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -15,11 +14,11 @@ const Sidebar = ({
   setRefetchSubmissions,
   className = "",
 }: {
-  onNewSubmission: (submissionId: string | null) => void;
+  onNewSubmission: (submissionId: string | null, reset?: boolean) => void;
   setRefetchSubmissions: (refetch: () => void) => void;
   className?: string;
 }) => {
-  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<ApiSubmission | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const { data: submissions, isLoading, refetch } = trpc.submissions.getAll.useQuery(undefined, {
     refetchOnWindowFocus: false,
@@ -31,10 +30,10 @@ const Sidebar = ({
 
   const handleNewClick = () => {
     setSelectedSubmission(null);
-    onNewSubmission(null);
+    onNewSubmission(null, true);
   };
 
-  const handleSelectSubmission = (submission: Submission) => {
+  const handleSelectSubmission = (submission: ApiSubmission) => {
     setSelectedSubmission(submission);
     onNewSubmission(submission.id);
   };
@@ -68,7 +67,7 @@ const Sidebar = ({
       </Button>
       {isLoading ? (
         <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <Skeleton key={i} className="h-20 w-full bg-gray-700" />
           ))}
         </div>

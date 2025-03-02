@@ -9,9 +9,15 @@ export default function Home() {
   const [currentSubmissionId, setCurrentSubmissionId] = useState<string | null>(null);
   const [refetchSubmissions, setRefetchSubmissions] = useState<() => void>(() => () => {});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [resetCode, setResetCode] = useState(false);
 
-  const handleNewSubmission = (submissionId: string | null) => {
+  const handleNewSubmission = (submissionId: string | null, reset?: boolean) => {
     setCurrentSubmissionId(submissionId);
+    // clear code field if we try to make new submission while being on the old one
+    if (reset) {
+      setResetCode(true);
+      setTimeout(() => setResetCode(false), 0);
+    }
   };
 
   return (
@@ -34,6 +40,7 @@ export default function Home() {
         <CodeSubmission
           submissionId={currentSubmissionId}
           refetchSubmissions={refetchSubmissions}
+          resetCode={resetCode}
         />
       </div>
     </div>

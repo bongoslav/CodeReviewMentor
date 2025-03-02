@@ -40,4 +40,45 @@ export const submissionsRouter = router({
     .query(async ({ input }) => {
       return await prisma.submission.findUnique({ where: { id: input.id } });
     }),
+
+  updateReaction: publicProcedure
+    .input(
+      z.object({
+        submissionId: z.string(),
+        reaction: z.enum(["up", "down"]),
+        userId: z.string().optional(), // if we extend with authentication at some point
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { submissionId, reaction, userId = "anonymous" } = input;
+
+      const submission = await prisma.submission.findUnique({
+        where: { id: submissionId },
+      });
+
+      if (!submission) {
+        throw new Error("Submission not found");
+      }
+
+      const existingReaction = await prisma.reaction.findFirst({
+        where: { submissionId, userId },
+      });
+
+      if (existingReaction) {
+        await prisma.reaction.update({
+          where: { id: existingReaction.id },
+          data: { reaction },
+        });
+      } else {
+        await prisma.reaction.create({
+          data: {
+            submissionId,
+            userId,
+            reaction,
+          },
+        });
+      }
+
+      return { success: true };
+    }),
 });
