@@ -7,6 +7,8 @@ import { atomone } from "@uiw/codemirror-theme-atomone";
 import { trpc } from "../utils/trpc";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
+import SubmissionDetails from "./SubmissionDetails";
+import { SupportedLanguages } from "../utils/enums";
 
 const CodeSubmission = ({
   submissionId,
@@ -16,7 +18,7 @@ const CodeSubmission = ({
   refetchSubmissions: () => void;
 }) => {
   const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("javascript");
+  const [language, setLanguage] = useState<SupportedLanguages>(SupportedLanguages.Javascript);
   const [feedback, setFeedback] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,76 +57,44 @@ const CodeSubmission = ({
   useEffect(() => {
     if (currentSubmission) {
       setCode(currentSubmission.code);
-      setLanguage(currentSubmission.language);
+      setLanguage(currentSubmission.language as SupportedLanguages);
       setFeedback(currentSubmission.feedback || "");
     } else {
       setCode("");
-      setLanguage("javascript");
+      setLanguage(SupportedLanguages.Javascript);
       setFeedback("");
     }
   }, [currentSubmission]);
 
   const handleSubmit = () => {
     setIsLoading(true);
-    if (submissionId) {
-      // Generate feedback for existing submission
-      feedbackMutation.mutate({ submissionId });
-    } else {
-      // Create new submission and then generate feedback
-      createMutation.mutate(
-        { code, language },
-        {
-          onSuccess: (newSubmission) =>
-            feedbackMutation.mutate({ submissionId: newSubmission.id }),
-        }
-      );
-    }
-  };
-
-  // Loading state for existing submission
-  if (submissionId && isSubmissionLoading) {
-    return (
-      <div className="p-4">
-        <Skeleton className="h-4 w-1/4 mb-2 bg-gray-700" /> {/* Language */}
-        <Skeleton className="h-32 w-full mb-2 bg-gray-700" /> {/* Code */}
-        <Skeleton className="h-4 w-1/4 mb-2 bg-gray-700" />{" "}
-        {/* Feedback label */}
-        <Skeleton className="h-4 w-full bg-gray-700" /> {/* Feedback */}
-      </div>
+    // create new submission and then generate feedback
+    createMutation.mutate(
+      { code, language },
+      {
+        onSuccess: (newSubmission) =>
+          feedbackMutation.mutate({ submissionId: newSubmission.id }),
+      }
     );
-  }
+  };
 
   return (
     <div className="p-4">
-      {submissionId && currentSubmission ? (
-        <>
-          <h2 className="text-lg font-semibold mb-2 text-gray-200">
-            Submission #{currentSubmission.id}
-          </h2>
-          <pre className="p-2 bg-gray-700 border-gray-600 rounded mb-2 text-gray-300">
-            {currentSubmission.code}
-          </pre>
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading}
-            variant="default"
-            className="mb-2 bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            {isLoading ? "Generating..." : "Generate Feedback"}
-          </Button>
-          {feedback && (
-            <p className="mt-2 text-gray-300">Feedback: {feedback}</p>
-          )}
-          {isLoading && <Skeleton className="h-4 w-full mt-2 bg-gray-700" />}
-        </>
+      {submissionId ? (
+        <SubmissionDetails
+          currentSubmission={currentSubmission}
+          feedback={feedback}
+          isSubmissionLoading={isSubmissionLoading}
+        />
       ) : (
         <>
           <div className="mb-2">
             <CodeMirror
               value={code}
-              extensions={language === "javascript" ? [javascript()] : []}
+              extensions={language === SupportedLanguages.Javascript ? [javascript()] : []}
               onChange={(value) => setCode(value)}
               theme={atomone}
+              height="384px" // h-96
               basicSetup={{
                 lineNumbers: true,
                 highlightActiveLine: true,
@@ -135,11 +105,14 @@ const CodeSubmission = ({
           </div>
           <select
             value={language}
-            onChange={(e) => setLanguage(e.target.value)}
+            onChange={(e) => setLanguage(e.target.value as SupportedLanguages)}
             className="mt-2 p-2 bg-gray-800 text-white rounded"
           >
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
+            {Object.values(SupportedLanguages).map((lang) => (
+              <option key={lang} value={lang}>
+                {lang.charAt(0).toUpperCase() + lang.slice(1)}
+              </option>
+            ))}
           </select>
           <Button
             onClick={handleSubmit}

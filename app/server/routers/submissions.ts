@@ -1,11 +1,6 @@
 import { router, publicProcedure } from "../trpc";
 import { z } from "zod";
 import prisma from "../../utils/prisma";
-import { languages } from "@/app/utils/enums";
-
-const supportedLanguages = languages.map((l) => l.value) as [
-  (typeof languages)[number]["value"]
-];
 
 export const submissionsRouter = router({
   create: publicProcedure
