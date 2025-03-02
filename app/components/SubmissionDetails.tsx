@@ -48,7 +48,7 @@ const SubmissionDetails = ({
             className="w-full h-96 overflow-y-auto overflow-x-auto"
             readOnly={true}
           />
-          {feedback && <p className="mt-4 text-gray-300">{feedback}</p>}
+          {feedback && <pre className="mt-4 text-gray-300 text-sm whitespace-pre-wrap break-words">{feedback}</pre>}
         </div>
       )}
     </>

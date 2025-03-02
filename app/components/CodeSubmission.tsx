@@ -130,7 +130,7 @@ const CodeSubmission = ({
               {isLoading ? "Generating..." : "Generate Feedback"}
             </Button>
           </div>
-          {feedback && <p className="mt-4 text-gray-300">{feedback}</p>}
+          {feedback && <pre className="mt-4 text-gray-300 text-sm whitespace-pre-wrap break-words">{feedback}</pre>}
           {isLoading && <Skeleton className="h-4 w-full mt-4 bg-gray-700" />}
         </>
       )}
