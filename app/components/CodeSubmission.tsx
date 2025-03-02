@@ -120,7 +120,7 @@ const CodeSubmission = ({
             variant="default"
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
-            {isLoading ? "Submitting..." : "Submit & Generate Feedback"}
+            {isLoading ? "Generating..." : "Generate Feedback"}
           </Button>
           {feedback && <p className="mt-2 text-gray-300">{feedback}</p>}
           {isLoading && <Skeleton className="h-4 w-full mt-2 bg-gray-700" />}
