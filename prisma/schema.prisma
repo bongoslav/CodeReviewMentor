@@ -16,4 +16,6 @@ model Submission {
   language  String
   feedback  String   @default("")
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
