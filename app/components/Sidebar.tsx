@@ -83,8 +83,8 @@ const Sidebar = ({
                   selectedSubmission?.id === submission.id ? "bg-gray-600 border-blue-500" : ""
                 }`}
               >
-                <p className="text-base text-gray-200">{submission.language}</p>
-                <pre className="text-sm text-gray-400">{truncateText(submission.code, 20)}</pre>
+                <p className="text-sm text-gray-200">{truncateText(submission.code, 30)}</p>
+                <p className="text-sm text-gray-400">{submission.language}</p>
                 <p className="text-xs text-gray-500">
                   {new Date(submission.createdAt).toLocaleString()}
                 </p>
@@ -92,21 +92,23 @@ const Sidebar = ({
             ))}
           </div>
           {totalPages > 1 && (
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-between mt-4 items-center">
               <Button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="hover:bg-gray-700"
+                variant="outline"
+                className="px-3 py-1 text-gray-200 bg-gray-700 border-gray-600 hover:bg-gray-600 rounded-md transition duration-200"
               >
                 Previous
               </Button>
-              <span className="text-gray-300">
+              <span className="text-sm text-gray-400">
                 Page {currentPage} of {totalPages}
               </span>
               <Button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="hover:bg-gray-700"
+                variant="outline"
+                className="px-3 py-1 text-gray-200 bg-gray-700 border-gray-600 hover:bg-gray-600 rounded-md transition duration-200"
               >
                 Next
               </Button>

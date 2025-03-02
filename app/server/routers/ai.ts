@@ -8,10 +8,6 @@ export const aiRouter = router({
   generateFeedback: publicProcedure
     .input(z.object({ submissionId: z.string() }))
     .mutation(async function* ({ input }) {
-      console.log(
-        "Starting feedback generation for submission:",
-        input.submissionId
-      );
       const submission = await prisma.submission.findUnique({
         where: { id: input.submissionId },
       });
@@ -19,8 +15,6 @@ export const aiRouter = router({
       if (!submission) {
         throw new Error("Submission not found");
       }
-
-      console.log("Submission found:");
 
       const specialty = "security";
       const { language, code } = submission;
@@ -51,18 +45,15 @@ Avoid markdown. Be technical but concise.`,
         temperature: 1,
       });
 
-      console.log("Starting to stream AI feedback...");
       let feedback = "";
       for await (const chunk of textStream) {
         feedback += chunk;
         yield chunk;
       }
-      console.log("Stream complete");
 
       await prisma.submission.update({
         where: { id: input.submissionId },
         data: { feedback },
       });
-      console.log("Feedback saved to submission:", input.submissionId);
     }),
 });
