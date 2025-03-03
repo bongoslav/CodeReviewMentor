@@ -48,7 +48,7 @@ model Reaction {
 - `submissions.updateReaction`: `mutation` - Update reaction (`{submissionId, reaction, userId?}`)
 
 ## Tech Stack
-- **Backend**: tRPC, Prisma, SQLite3
+- **Backend**: tRPC, Prisma, PostgreSQL
 - **Frontend**: React, Next.js, Tailwind CSS, Shadcn/ui, @trpc/react-query
 - **AI**: Vercel AI SDK, OpenAI API
 - **Other**: TypeScript, Zod
@@ -56,7 +56,7 @@ model Reaction {
 ## Prerequisites
 - Node.js (v18.x+)
 - npm (v8.x+)
-- SQLite3
+- hosted PostgreSQL database
 - Git
 
 ## Installation
@@ -66,9 +66,10 @@ model Reaction {
 4. Create `.env` with:
 
 ```
-DATABASE_URL=file:./prisma/dev.db
+DATABASE_URL=your-postgresql-url
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
+My database is hosted on Neon.
 and `.env.local` with:
 ```
 OPENAI_API_KEY=your-key
