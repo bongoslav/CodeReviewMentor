@@ -57,7 +57,7 @@ const Sidebar = ({
   };
 
   return (
-    <div className={`w-64 bg-gray-800 p-4 ${className}`}>
+    <div className={`w-64 h-screen bg-gray-800 p-4 ${className} overflow-y-auto`}>
       <Button
         onClick={handleNewClick}
         variant="default"

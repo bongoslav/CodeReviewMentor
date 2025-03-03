@@ -78,7 +78,10 @@ const CodeSubmission = ({
   });
 
   useEffect(() => {
-    if (resetCode) setCode("");
+    if (resetCode) {
+      setCode("");
+      setFeedback("");
+    };
   }, [resetCode]);
 
   // sync component state with fetched submission data
@@ -130,7 +133,7 @@ const CodeSubmission = ({
               }
               onChange={(value) => setCode(value)}
               theme={atomone}
-              height="384px" // h-96
+              height="384px"
               basicSetup={{
                 lineNumbers: true,
                 highlightActiveLine: true,
