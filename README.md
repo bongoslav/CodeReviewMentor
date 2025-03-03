@@ -69,8 +69,8 @@ model Reaction {
 DATABASE_URL=your-postgresql-url
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
-My database is hosted on Neon.
-and `.env.local` with:
+My database is hosted on Neon.  
+`.env.local` with:
 ```
 OPENAI_API_KEY=your-key
 ```
