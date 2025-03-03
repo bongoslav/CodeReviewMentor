@@ -32,7 +32,7 @@ Avoid markdown. Be technical but concise.`,
         model: openai("gpt-3.5-turbo"),
         prompt,
         maxTokens: 450,
-        temperature: 1,
+        temperature: 0.5,
       });
 
       for await (const chunk of textStream) {
