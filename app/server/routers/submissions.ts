@@ -41,12 +41,22 @@ export const submissionsRouter = router({
       return await prisma.submission.findUnique({ where: { id: input.id } });
     }),
 
+  getUserReaction: publicProcedure
+    .input(z.object({ submissionId: z.string() }))
+    .query(async ({ input }) => {
+      const { submissionId } = input;
+      const reaction = await prisma.reaction.findFirst({
+        where: { submissionId, userId: "anonymous" }, // to be replace with dynamic userId
+      });
+      return reaction ? { reaction: reaction.reaction as "up" | "down" } : null;
+    }),
+
   updateReaction: publicProcedure
     .input(
       z.object({
         submissionId: z.string(),
-        reaction: z.enum(["up", "down"]),
-        userId: z.string().optional(), // if we extend with authentication at some point
+        reaction: z.enum(["up", "down"]).nullable(),
+        userId: z.string().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -64,19 +74,25 @@ export const submissionsRouter = router({
         where: { submissionId, userId },
       });
 
-      if (existingReaction) {
-        await prisma.reaction.update({
+      if (reaction === null && existingReaction) {
+        await prisma.reaction.delete({
           where: { id: existingReaction.id },
-          data: { reaction },
         });
-      } else {
-        await prisma.reaction.create({
-          data: {
-            submissionId,
-            userId,
-            reaction,
-          },
-        });
+      } else if (reaction) {
+        if (existingReaction) {
+          await prisma.reaction.update({
+            where: { id: existingReaction.id },
+            data: { reaction },
+          });
+        } else {
+          await prisma.reaction.create({
+            data: {
+              submissionId,
+              userId,
+              reaction,
+            },
+          });
+        }
       }
 
       return { success: true };

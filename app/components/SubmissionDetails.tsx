@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Skeleton } from "./ui/skeleton";
 import { Button } from "./ui/button";
 import CodeMirror from "@uiw/react-codemirror";
@@ -21,26 +21,47 @@ const SubmissionDetails = ({
   const [userReaction, setUserReaction] = useState<"up" | "down" | null>(null);
   const submissionId = currentSubmission.id;
 
+  const { data: existingReaction } = trpc.submissions.getUserReaction.useQuery(
+    { submissionId: submissionId! },
+    { enabled: !!submissionId }
+  );
+
+  useEffect(() => {
+    if (existingReaction) {
+      setUserReaction(existingReaction.reaction);
+    } else {
+      setUserReaction(null);
+    }
+  }, [existingReaction]);
+
   const updateReactionMutation = trpc.submissions.updateReaction.useMutation({
     onSuccess: () => {
       console.log("Reaction updated successfully");
     },
     onError: (error) => {
       console.error("Error updating reaction:", error);
-      setUserReaction(null);
+      setUserReaction(null); // reset if mutation fails
     },
   });
 
   const handleReaction = (reaction: "up" | "down") => {
     if (!submissionId) return;
 
-    setUserReaction(reaction);
-
-    updateReactionMutation.mutate({
-      submissionId,
-      reaction,
-      userId: "anonymous", // to be replaced with actual user ID
-    });
+    if (userReaction === reaction) {
+      setUserReaction(null);
+      updateReactionMutation.mutate({
+        submissionId,
+        reaction: null,
+        userId: "anonymous",
+      });
+    } else {
+      setUserReaction(reaction);
+      updateReactionMutation.mutate({
+        submissionId,
+        reaction,
+        userId: "anonymous",
+      });
+    }
   };
 
   const getLanguageExtension = () => {
@@ -78,8 +99,6 @@ const SubmissionDetails = ({
             readOnly={true}
           />
           <div className="mt-4 flex items-center space-x-4">
-            {" "}
-            {/* Container for buttons with spacing */}
             <Button
               onClick={() => handleReaction("up")}
               variant={userReaction === "up" ? "default" : "outline"}
