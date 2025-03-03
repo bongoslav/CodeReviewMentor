@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Code Review Application
+
+A web app for submitting code, generating AI security feedback, and tracking reactions with pagination.
 
 ## Getting Started
+Submit code snippets, view AI feedback, react with thumbs up/down, and navigate submissions.
 
-First, run the development server:
+## Prerequisites
+- Node.js (v18.x+)
+- npm (v8.x+)
+- SQLite3
+- Git
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Installation
+1. `git clone https://github.com/yourusername/code-review-app.git`
+2. `cd code-review-app`
+3. `npm install`
+4. Create `.env` with:
+
+```
+DATABASE_URL=file:./prisma/dev.db
+NEXT_PUBLIC_API_URL=http://localhost:3000/api/trpc
+OPENAI_API_KEY=your-key
+```
+5. `npx prisma db push`
+
+## Running
+1. `npm run dev`
+2. Open `http://localhost:3000`
+3. Stop with `Ctrl + C`
+
+## Important Functionalities
+- Code submission (30-500 chars, JavaScript/Python/Java)
+- AI feedback generation (streaming)
+- Feedback reactions (thumbs up/down)
+- Submission pagination (5/page)
+- Real-time updates
+- Error handling (AI, DB, validation)
+
+## Database Schema
+```prisma
+model Submission {
+id        Int      @id @default(autoincrement())
+code      String   @db.Text
+language  String
+feedback  String?  @db.Text
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+reactions Reaction[]
+
+@@index([createdAt])
+}
+
+model Reaction {
+id          Int       @id @default(autoincrement())
+submission  Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+submissionId Int
+userId      String    @default("anonymous")
+reaction    String    @db.Text
+createdAt   DateTime  @default(now())
+
+@@index([submissionId])
+@@index([userId])
+@@unique([submissionId, userId])
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API Endpoints
+- `submissions.create`: `mutation` - Create submission (`{code, language, feedback}`)
+- `submissions.getAll`: `query` - List submissions (sorted by `createdAt` desc)
+- `submissions.getById`: `query` - Get submission by ID
+- `submissions.updateReaction`: `mutation` - Update reaction (`{submissionId, reaction, userId?}`)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
+- **Frontend**: React, Next.js, Tailwind CSS, CodeMirror, @trpc/react-query
+- **Backend**: tRPC, Prisma, SQLite3
+- **AI**: Vercel AI SDK, OpenAI API
+- **Other**: TypeScript, Zod
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+MIT License
