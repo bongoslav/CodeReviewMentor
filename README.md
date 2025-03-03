@@ -67,7 +67,7 @@ model Reaction {
 
 ```
 DATABASE_URL=file:./prisma/dev.db
-NEXT_PUBLIC_API_URL=http://localhost:3000/api/trpc
+NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 and `.env.local` with:
 ```

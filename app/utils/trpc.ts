@@ -10,7 +10,7 @@ export const queryClient = new QueryClient();
 export const trpcClient = trpc.createClient({
   links: [
     unstable_httpBatchStreamLink({
-      url: 'http://localhost:3000/api/trpc',
+      url: `${process.env.NEXT_PUBLIC_API_URL}/api/trpc`,
     }),
   ],
 }); 
