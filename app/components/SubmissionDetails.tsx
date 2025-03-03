@@ -21,7 +21,7 @@ const SubmissionDetails = ({
   const [userReaction, setUserReaction] = useState<"up" | "down" | null>(null);
   const submissionId = currentSubmission.id;
 
-  const { data: existingReaction } = trpc.submissions.getUserReaction.useQuery(
+  const { data: existingReaction } = trpc.submissions.getReaction.useQuery(
     { submissionId: submissionId! },
     { enabled: !!submissionId }
   );

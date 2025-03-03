@@ -44,6 +44,7 @@ model Reaction {
 - `submissions.create`: `mutation` - Create submission (`{code, language, feedback}`)
 - `submissions.getAll`: `query` - List submissions (sorted by `createdAt` desc)
 - `submissions.getById`: `query` - Get submission by ID
+- `submissions.getReaction`: `query` - Get reaction by `submissionId`
 - `submissions.updateReaction`: `mutation` - Update reaction (`{submissionId, reaction, userId?}`)
 
 ## Tech Stack

@@ -41,7 +41,7 @@ export const submissionsRouter = router({
       return await prisma.submission.findUnique({ where: { id: input.id } });
     }),
 
-  getUserReaction: publicProcedure
+  getReaction: publicProcedure
     .input(z.object({ submissionId: z.string() }))
     .query(async ({ input }) => {
       const { submissionId } = input;
